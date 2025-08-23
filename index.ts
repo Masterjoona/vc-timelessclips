@@ -5,12 +5,12 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { makeRange } from "@components/PluginSettings/components";
-import definePlugin, { OptionType, } from "@utils/types";
+import { Devs } from "@utils/constants";
+import definePlugin, { makeRange, OptionType } from "@utils/types";
 
 const settings = definePluginSettings({
     clipLength: {
-        description: "Add clip length option in minutes",
+        description: "The clip length to be added (in minutes)",
         type: OptionType.SLIDER,
         markers: makeRange(3, 30, 1),
         default: 5,
@@ -20,17 +20,14 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "TimelessClips",
-    authors: [{
-        name: "Joona",
-        id: 297410829589020673n
-    }],
+    authors: [Devs.Joona],
     description: "Add a your own clip length",
     patches: [
         {
             find: '"Save clip keybind unset"',
             replacement: {
-                match: /\)}](?<={value:.{14,17},label:(.{35,55}:).{3,7})/,
-                replace: "$&.concat({value:$self.getClipLength(true),label:$1$self.getClipLength(false)})})"
+                match: /MINUTES_2.+?(label:.+?count:).+?]/,
+                replace: "$&.concat({value:$self.getClipLength(true),$1$self.getClipLength(false)})})"
             }
         },
     ],
@@ -38,6 +35,5 @@ export default definePlugin({
     getClipLength(millis: boolean) {
         const minutes = settings.store.clipLength;
         return millis ? minutes * 6e4 : minutes;
-
     }
 });
